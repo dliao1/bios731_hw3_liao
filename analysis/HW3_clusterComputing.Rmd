@@ -10,7 +10,18 @@ urlcolor: blue
 ```{r, include=FALSE}
 
 library(tidyverse)
+library(here)
+library(tidyr)
+library(knitr)
+library(dplyr)
+library(ggplot2)
+library(dplyr)
+library(cowplot)
+library(kableExtra)
+
 knitr::opts_chunk$set(tidy = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 ## Context
@@ -110,6 +121,198 @@ Create plots with *Monte Carlo standard error bars* to summarize the following:
 - Type 1 error
 
 Write 1-2 paragraphs summarizing these results.
+
+```{r}
+num_scenarios <- 1 * 2 * 2
+
+mc_err <- 0.01
+cover <- 0.95
+alpha <- 1 - 0.95
+n_sim <- (cover * (1 - cover))/mc_err^2
+n_sim
+```
+
+```{r}
+all_wald_results <- vector("list", num_scenarios)
+all_boot_p_results <- vector("list", num_scenarios)
+
+# Loop through each scenario file
+for (i in 1:num_scenarios) {
+  file_path <- here("results", "sim_wald", paste0("scenario_", i, ".RDA"))
+  load(file_path)
+  
+  all_wald_results[[i]] <- all_wald_estim %>% 
+    mutate(err_type = ifelse(err_type == 0, "Gamma", "Normal"))
+  
+  file_path <- here("results", "sim_boot_percentile", paste0("scenario_", i, ".RDA"))
+  load(file_path)
+  
+  all_boot_p_results[[i]] <- all_boot_percent_estim %>%
+    mutate(err_type = ifelse(err_type == 0, "Gamma", "Normal"))
+
+}
+
+
+```
+
+```{r}
+all_biases <- rep(NA, num_scenarios)
+var_hat <- rep(NA, num_scenarios)
+wald_coverage <- rep(NA, num_scenarios)
+boot_p_coverage <- rep(NA, num_scenarios)
+wald_time <- rep(NA, num_scenarios)
+boot_p_time <- rep(NA, num_scenarios)
+all_n <- rep(NA, num_scenarios)
+all_beta_true <- rep(NA, num_scenarios)
+all_err_type <- rep(NA, num_scenarios)
+scenario_num <- rep(NA, num_scenarios)
+mean_wald_se_beta <- rep(NA, num_scenarios)
+mean_boot_p_se_beta <- rep(NA, num_scenarios)
+se_hat <- rep(NA, num_scenarios)
+se_hat_se <- rep(NA, num_scenarios)
+wald_type1 <- rep(NA, num_scenarios)
+boot_p_type1 <- rep(NA, num_scenarios)
+wald_power <- rep(NA, num_scenarios)
+boot_p_power <- rep(NA, num_scenarios)
+
+bias_mcse <- rep(NA, num_scenarios)
+coverage_mcse <- rep(NA, num_scenarios)
+wald_power_mcse <- rep(NA, num_scenarios)
+wald_type1_mcse <- rep(NA, num_scenarios)
+
+n_sim <- 475
+
+for (i in 1:num_scenarios) {
+  
+  all_biases[i] <- (1/n_sim) * sum(all_wald_results[[i]]$beta_hat - all_wald_results[[i]]$beta_true)
+  var_hat[i] <- sd(all_wald_results[[i]]$beta_hat)
+  se_hat[i] <- mean(all_wald_results[[i]]$se_beta)
+  se_hat_se[i] <- sd(all_wald_results[[i]]$se_beta)
+  wald_coverage[i] <- mean(all_wald_results[[i]]$coverage == 1) * 100
+  boot_p_coverage[i] <- mean(all_boot_p_results[[i]]$coverage == 1) * 100
+  wald_time[i] <- mean(all_wald_results[[i]]$time)
+  boot_p_time[i] <- mean(all_boot_p_results[[i]]$time)
+  all_n[i] <- unique(all_wald_results[[i]]$n)[[1]]
+  all_beta_true[i] <- unique(all_wald_results[[i]]$beta_true)
+  all_err_type[i] <- unique(all_wald_results[[i]]$err_type)
+  mean_wald_se_beta[i] <- mean(all_wald_results[[i]]$se_beta)
+  mean_boot_p_se_beta[i] <- mean(all_boot_p_results[[i]]$se_beta)
+  
+  # Power = p(detecting an effect)
+  # = p(rejecting null when null false)
+  # = 1 - p(NOT rejecting null when null false)
+  # = 1 - p(0 in CI when beta_true = 0.5)
+  #  = p(0 not in CI when beta_true = 0.5)
+  
+  # type I error
+  # p(rejecting null when null is true)
+  # = p(0 not in CI when beta_true = 0)
+
+  if (unique(all_wald_results[[i]]$beta_true)[[1]] == 0) {
+    # Compute Type I Error when true beta is 0
+    wald_type1[i] <- mean(all_wald_results[[i]]$ci_l > 0 | all_wald_results[[i]]$ci_u < 0)
+    boot_p_type1[i] <- mean(all_boot_p_results[[i]]$ci_l > 0 | all_boot_p_results[[i]]$ci_u < 0)
+
+    
+  } else { # beta = 0.5
+    # Compute Power when true beta is NOT 0
+    wald_power[i] <- mean(all_wald_results[[i]]$ci_l > 0 | all_wald_results[[i]]$ci_u < 0)
+    boot_p_power[i] <- mean(all_boot_p_results[[i]]$ci_l > 0 | all_boot_p_results[[i]]$ci_u < 0)
+
+  }
+  
+  scenario_num[i] <- i
+  
+  bias_mcse[i] <- sqrt(sum((all_wald_results[[i]]$beta_hat - mean(all_wald_results[[i]]$beta_hat))^2) / (n_sim * (n_sim - 1)))
+
+}
+
+
+# this is 4 rows, 1 for each parameter combo
+df <- bind_cols(
+  scenario_num = scenario_num, 
+  n = all_n, 
+  beta_true = all_beta_true, 
+  error_type = all_err_type, 
+  bias = all_biases,
+  bias_mcse = bias_mcse,
+  var = var_hat,
+  se_hat = se_hat,
+  se_hat_se = se_hat_se,
+  wald_coverage = wald_coverage,
+  wald_coverage_mcse = sqrt(wald_coverage/100 * (1-wald_coverage/100)/ n_sim) ,
+  wald_time = wald_time,
+  wald_power = wald_power,
+  wald_power_mcse = sqrt(wald_power * (1-wald_power)/n_sim), 
+  wald_type1 = wald_type1,
+  wald_type1_mcse = sqrt(wald_type1 * (1-wald_type1)/n_sim),
+
+  wald_se = mean_wald_se_beta,
+  boot_p_coverage = boot_p_coverage,
+  boot_p_coverage_mcse = sqrt(boot_p_coverage/100 * (1-boot_p_coverage/100)/ n_sim) ,
+
+  boot_p_time = boot_p_time,
+  boot_p_se = mean_boot_p_se_beta,
+  boot_p_power = boot_p_power,
+  boot_p_power_mcse= sqrt(boot_p_power * (1-boot_p_power)/n_sim),
+
+  boot_p_type1 = boot_p_type1,
+  boot_p_type1_mcse = sqrt(boot_p_type1 * (1-boot_p_type1)/n_sim),
+
+  
+  )
+
+
+
+
+```
+
+```{r}
+bias_table <- df %>%
+  select(n, beta_true, error_type, bias) %>%  
+  arrange(n, beta_true) %>%
+  rename("N" = n, "True Beta" = beta_true) %>%
+  pivot_wider(
+    names_from = error_type,
+    values_from = bias,   
+  )
+
+kable(bias_table, digits = 3, caption = "Bias Summary Table")
+```
+
+```{r}
+coverage_table <- df %>%
+  select(n, beta_true, error_type, wald_coverage, boot_p_coverage) %>%
+  arrange(n, beta_true, error_type) %>%
+  pivot_wider(
+    names_from = error_type,  
+    values_from = c(wald_coverage, boot_p_coverage),
+    names_glue = "{error_type} {.value}", 
+  ) %>%
+  select(n, beta_true, starts_with("Gamma"), starts_with("Normal")) %>%
+  rename(
+    "N" = n,
+    "True Beta" = beta_true,
+    "Gamma Wald CI" = "Gamma wald_coverage",
+    "Gamma Bootstrap Percentile CI" = "Gamma boot_p_coverage",
+    "Normal Wald CI" = "Normal wald_coverage",
+    "Normal Bootstrap Percentile CI" = "Normal boot_p_coverage",
+  )
+
+
+kable(coverage_table, digits = 3, caption = "Coverage Summary Table") %>%
+  add_header_above(c(" " = 2, "Gamma" = 2, "Normal" = 2)) %>%
+  column_spec(1, width = "1cm") %>%
+  column_spec(2, width = "1cm") %>%
+  column_spec(3:6, width = "2cm") 
+
+```
+
+# Power
+```{r}
+df
+
+```
 
 
 
