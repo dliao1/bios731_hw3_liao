@@ -161,9 +161,8 @@ if (doLocal == TRUE) {
   
   stopCluster(cl)
 } else { # on cluster
-  params <- NA
   scenario <- as.numeric(commandArgs(trailingOnly=TRUE))
-  params = params[scenario,]
+  params = param_grid[scenario,]
   
   sim_results <- foreach(
     j = 1:n_sim,
