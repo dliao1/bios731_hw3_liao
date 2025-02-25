@@ -1,7 +1,7 @@
 #!/bin/bash
 #SBATCH --array=1-4%2
 #SBATCH --job-name=run_sim_job_dliao6
-#SBATCH --partition=day-long-cpu
+#SBATCH --partition=encore
 #SBATCH --output=run_sim.out
 #SBATCH --error=run_sim.err
 
