@@ -4,7 +4,6 @@ suppressPackageStartupMessages(library(foreach))
 suppressPackageStartupMessages(library(dplyr))
 suppressPackageStartupMessages(library(here))
 suppressPackageStartupMessages(library(tictoc))
-suppressPackageStartupMessages(library(doParallel))
 
 # Loads required helper functions
 source(here("source", "gen_data.R"))
@@ -36,6 +35,7 @@ wd = getwd()
 
 if(substring(wd, 4, 8) == "Users"){
   doLocal = TRUE
+  suppressPackageStartupMessages(library(doParallel))
   cl <- makeCluster(12)  
   registerDoParallel(cl)
 }else{
@@ -160,7 +160,7 @@ if (doLocal == TRUE) {
   }
   
   stopCluster(cl)
-} else {
+} else { # on cluster
   params <- NA
   scenario <- as.numeric(commandArgs(trailingOnly=TRUE))
   params = params[scenario,]
