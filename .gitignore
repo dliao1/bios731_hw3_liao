@@ -1,3 +1,5 @@
 *.Rda
 *.rds
 .Rproj.user
+.Rhistory
+

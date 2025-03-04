@@ -1,8 +1,4 @@
-library(tidyverse)
-library(foreach)
-library(tictoc)
-
-# Generates data given n, true beta, and error type (1 for N(0,2) errors, 0 for lognormal(0,2) errors)
+# Generates data given n, true beta, and error type (1 for N(0,2) errors, 0 for gamma errors)
 gen_data <- function(n, beta_true, err_type) {
   beta0 <- 1
   beta_treat <- beta_true

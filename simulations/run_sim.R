@@ -53,7 +53,7 @@ n_sim <- round((cover * (1 - cover)) / mc_err^2) #n_sim = 475
 # Calculates parameter combinations
 n <- c(20)
 beta_true <- c(0, 0.5)
-err_type <- c(0, 1)  # 1 = normal, 0 = gamma
+err_type <- c(0, 1) # 1 = normal, 0 = gamma
 
 
 param_grid <- expand.grid(

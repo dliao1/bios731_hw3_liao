@@ -1,8 +1,3 @@
-library(tidyverse)
-library(foreach)
-library(tictoc) 
-
-
 # Returned value: nboot long list of estimated betas 
 get_boot_data <- function (original_data, beta_true, sample_size, alpha, nboot) {
   all_boot_betas <- rep(NA, nboot)
