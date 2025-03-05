@@ -295,5 +295,5 @@ intervals and wald intervals had really low power for both true betas of 0 and
 0.5 for normal errors, but much higher power for gamma errors. My hypothesis
 was that Wald intervals would have higher power than the bootstrap intervals
 for the normal errors especially, but maybe due to the original sample size being
-n = 20 and the variance being higher than that of the gamma distribution, that was why
-the power was so low for the normal errors.
+n = 20 and the variance being higher than that of the gamma distribution, that was 
+why the power was so low for the normal errors.
