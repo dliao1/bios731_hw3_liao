@@ -133,7 +133,6 @@ mc_err <- 0.01
 cover <- 0.95
 alpha <- 1 - 0.95
 n_sim <- (cover * (1 - cover))/mc_err^2
-n_sim
 ```
 
 ```{r}
@@ -159,7 +158,7 @@ ggplot(df, aes(x = error_type, y = bias, color = as.factor(beta_true))) +
   geom_point(position = position_dodge(width = 0.3), size = 3) + 
   geom_errorbar(aes(ymin = bias - bias_mcse, ymax = bias + bias_mcse), 
                 position = position_dodge(width = 0.3), width = 0.2) + 
-  labs(title = "Bar plot of Bias",
+  labs(title = "Bias Summary Plot",
        x = "Error Type",
        y = "Bias",
        color = "True Beta") +
@@ -211,7 +210,7 @@ ggplot(df_coverage, aes(x = error_type, y = coverage, color = as.factor(beta_tru
   geom_point(position = position_dodge(width = 0.4), size = 4) +  
   geom_errorbar(aes(ymin = coverage - mcse, ymax = coverage + mcse), 
                 position = position_dodge(width = 0.4), width = 0.2) +  
-  labs(title = "Comparison of Coverages Estimates",
+  labs(title = "Wald vs. Bootstrap CI Coverage (by error type)",
        x = "Error Type", y = "Coverage", 
        color = "True Beta", shape = "Method") +
   theme_minimal(base_size = 14) +
@@ -238,7 +237,7 @@ ggplot(df_type1, aes(x = error_type, y = type1, color = as.factor(beta_true), sh
   geom_point(position = position_dodge(width = 0.4), size = 4) +  
   geom_errorbar(aes(ymin = type1 - mcse, ymax = type1 + mcse), 
                 position = position_dodge(width = 0.4), width = 0.2) +  
-  labs(title = "Comparison of Type I Error Estimates",
+  labs(title = "Wald vs Bootstrap Type I Error Estimates",
        x = "Error Type", y = "Type I Error", 
        color = "True Beta", shape = "Method") +
   theme_minimal(base_size = 14) +
@@ -266,7 +265,7 @@ ggplot(df_power, aes(x = error_type, y = power, color = as.factor(beta_true), sh
   geom_point(position = position_dodge(width = 0.4), size = 4) +  
   geom_errorbar(aes(ymin = power - mcse, ymax = power + mcse), 
                 position = position_dodge(width = 0.4), width = 0.2) +  
-  labs(title = "Comparison of Power Estimates",
+  labs(title = "Wald vs Bootstrap Power Estimates",
        x = "Error Type", y = "Power", 
        color = "True Beta", shape = "Method") +
   theme_minimal(base_size = 14) +
@@ -277,4 +276,24 @@ ggplot(df_power, aes(x = error_type, y = power, color = as.factor(beta_true), sh
 
 ```
 
+### Summary
 
+To summarize, it looks like the bias for normal errors tended to be more negative,
+at around 0.012, while bias for gamma errors tended to be positive, at around
+-0.012. The Monte Carlo standard errors for normal errors looked to be larger than 
+the MCSE for gamma errors, which makes sense, and these conclusions make sense
+when considering that the gamma distribution takes on only positive values, and that
+the variance of a gamma distribution with shape = 1 and rate = 2 is a lot
+smaller than the variance of 2 that we used for the normal distribution. 
+
+For coverages, Wald confidence intervals tended to have higher coverage for both
+true betas of 0 and 1 across both gamma and normal errors.
+
+As for type I error and power, it looks like bootstrap percentile intervals had higher
+type I error rates than the wald intervals. For some reason, both bootstrap percentile
+intervals and wald intervals had really low power for both true betas of 0 and 
+0.5 for normal errors, but much higher power for gamma errors. My hypothesis
+was that Wald intervals would have higher power than the bootstrap intervals
+for the normal errors especially, but maybe due to the original sample size being
+n = 20 and the variance being higher than that of the gamma distribution, that was why
+the power was so low.

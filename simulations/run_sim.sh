@@ -2,8 +2,8 @@
 #SBATCH --array=1-4%2
 #SBATCH --job-name=run_sim_job_dliao6
 #SBATCH --partition=encore
-#SBATCH --output=run_sim.out
-#SBATCH --error=run_sim.err
+#SBATCH --output=output_run_sim
+#SBATCH --error=error_run_sim
 
 module purge
 module load R
