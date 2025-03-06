@@ -1,7 +1,8 @@
 *.RDA
+.RData
 *.rds
-*.Rproj.user
-*.Rhistory
+.Rproj.user/
+.Rhistory
 *.err
 *.out
 
