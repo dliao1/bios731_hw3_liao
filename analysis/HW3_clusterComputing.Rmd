@@ -150,7 +150,7 @@ bias_table <- df %>%
     values_from = bias,   
   )
 
-kable(bias_table, digits = 3, caption = "Bias Summary Table")
+kable(bias_table, digits = 4, caption = "Bias Summary Table")
 ```
 
 ```{r}

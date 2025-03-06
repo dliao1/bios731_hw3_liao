@@ -1,4 +1,7 @@
 # Generates data given n, true beta, and error type (1 for N(0,2) errors, 0 for gamma errors)
+#
+# Inputs: n, true beta, error type
+# Returns: Dataframe with x,y data pairs
 gen_data <- function(n, beta_true, err_type) {
   beta0 <- 1
   beta_treat <- beta_true

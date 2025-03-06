@@ -1,3 +1,5 @@
+# Runs simulations
+
 # Loads required libraries 
 suppressPackageStartupMessages(library(tidyverse))
 suppressPackageStartupMessages(library(foreach))

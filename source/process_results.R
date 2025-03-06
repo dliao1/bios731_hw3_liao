@@ -1,4 +1,10 @@
-
+# Processes results from each simulation scenario and summarizes in 
+# a dataframe where each row corresponds to one combination of parameters
+# Summary information includes biases, coverages for confidence intervals,
+# power, type 1 error, and MCSEs for the previous informations.
+# 
+# Inputs: number of scenarios, number of simulations
+# Return value: data frame with summary information
 process_results <- function(num_scenarios, n_sim) {
   # Reads in finished scenario files
   all_wald_results <- vector("list", num_scenarios)
@@ -110,7 +116,7 @@ process_results <- function(num_scenarios, n_sim) {
     boot_p_time = boot_p_time,
     boot_p_se = mean_boot_p_se_beta,
     boot_p_power = boot_p_power,
-    boot_p_power_mcse= sqrt(boot_p_power * (1-boot_p_power)/n_sim),
+    boot_p_power_mcse = sqrt(boot_p_power * (1-boot_p_power)/n_sim),
     boot_p_type1 = boot_p_type1,
     boot_p_type1_mcse = sqrt(boot_p_type1 * (1-boot_p_type1)/n_sim),
   )
