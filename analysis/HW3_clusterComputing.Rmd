@@ -280,19 +280,19 @@ ggplot(df_power, aes(x = error_type, y = power, color = as.factor(beta_true), sh
 ### Summary
 
 To summarize, it looks like the bias for normal errors tended to be more negative,
-at around 0.012, while bias for gamma errors tended to be positive, at around
--0.012. The Monte Carlo standard errors for normal errors looked to be larger than 
-the MCSE for gamma errors, which makes sense, and these conclusions make sense
-when considering that the gamma distribution takes on only positive values, and that
-the variance of a gamma distribution with shape = 1 and rate = 2 is a lot
-smaller than the variance of 2 that we used for the normal distribution. 
+at around -0.012, while bias for gamma errors tended to be positive, at around
+0.012. The Monte Carlo standard errors for normal errors looked to be larger than 
+the MCSE for gamma errors, which makes sense when considering that the gamma distribution takes on 
+only positive values, and that the variance of a gamma distribution with 
+shape = 1 and rate = 2 is a lot smaller than the variance of 2 that we used for 
+the normal distribution. 
 
 For coverages, Wald confidence intervals tended to have higher coverage for both
 true betas of 0 and 1 across both gamma and normal errors.
 
 As for type I error and power, it looks like bootstrap percentile intervals had higher
-type I error rates than the wald intervals. For some reason, both bootstrap percentile
-intervals and wald intervals had really low power for both true betas of 0 and 
+type I error rates than the Wald intervals. For some reason, both bootstrap percentile
+intervals and Wald intervals had really low power for both true betas of 0 and 
 0.5 for normal errors, but much higher power for gamma errors. My hypothesis
 was that Wald intervals would have higher power than the bootstrap intervals
 for the normal errors especially, but maybe due to the original sample size being
