@@ -288,7 +288,7 @@ shape = 1 and rate = 2 is a lot smaller than the variance of 2 that we used for
 the normal distribution. 
 
 For coverages, Wald confidence intervals tended to have higher coverage for both
-true betas of 0 and 1 across both gamma and normal errors.
+true betas of 0 and 0.5 across both gamma and normal errors.
 
 As for type I error and power, it looks like bootstrap percentile intervals had higher
 type I error rates than the Wald intervals. For some reason, both bootstrap percentile
